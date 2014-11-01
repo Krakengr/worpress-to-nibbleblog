@@ -357,6 +357,7 @@ if (!empty($disqus_id))
 //Functions
 
 function html_excerpt( $str, $count, $more = null ) {
+	//function taken from Wordpress
 	if ( null === $more )
 		$more = '';
 	$str = strip_all_tags( $str, true );
@@ -369,6 +370,7 @@ function html_excerpt( $str, $count, $more = null ) {
 }
 
 function strip_all_tags($string, $remove_breaks = false) {
+	//function taken from Wordpress
 	$string = preg_replace( '@<(script|style)[^>]*?>.*?</\\1>@si', '', $string );
 	$string = strip_tags($string);
 	
