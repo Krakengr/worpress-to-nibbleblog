@@ -286,8 +286,8 @@ else
 			 );
 			 
 			 add_xml_file ($content_folder . $file_name, $xml_post);
-
-
+			 
+			 unset($xml_post);
 		
 			$posts_xml_temp .= '<url id="' . $postnum . '" slug="' . $seo . '"></url>';
 		
