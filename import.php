@@ -17,15 +17,17 @@
 header("Content-type: text/html; charset=UTF-8");
 ini_set('mbstring.internal_encoding', 'UTF-8');
 ini_set('memory_limit', '128M');
-set_time_limit(0); //ini_set("max_execution_time", "200");
-//error_reporting(0);
+set_time_limit(0);
+error_reporting(0);
+
 $dir = getcwd() . '/';
 $error = '';
 $message = '';
 
-//Change it if you want to set different timezone
-date_default_timezone_set("America/Los_Angeles");
-
+if (function_exists('date_default_timezone_set') && !ini_get('date.timezone') )
+{
+	date_default_timezone_set("America/Los_Angeles");
+}
 //Find the url
 $url = get_url(); 
 $siteurl = $url['path'];
@@ -83,7 +85,7 @@ $com_xml .= '<channel>' . PHP_EOL;
 <?php
 if (!$_POST['run']) { ?>
 <body id="page">
-<?php if (file_exists($dir . 'locked')) echo '<p>Remove the file "locked" before you can continue with the conversion.</p>'; ?>
+<?php if (file_exists($dir . 'locked')) echo '<p>The converter has been locked. To unlock the converter please delete the "locked" file in this directory.</p>'; ?>
 	<form method="post" action="<?=$url['full'];?>">
  <p>wordpress' xml filename (ex filename.xml)   
  	<input type="text" name="xml_file" size="30" maxlength="80">
@@ -110,7 +112,7 @@ else
 	{
 		echo '<body id="error-page">
 		<p><strong>An error occurred and the conversion could not be completed</strong>:<br />
-		The converter is locked. Remove the file "locked" and try again. <a href="javascript: history.go(-1)">Go Back</a></p>
+		The converter has been locked. To unlock the converter please delete the "locked" file in this directory. <a href="javascript: history.go(-1)">Go Back</a></p>
 		</body>
 		</html>';
 		
