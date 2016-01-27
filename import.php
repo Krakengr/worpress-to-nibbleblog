@@ -15,7 +15,12 @@
 //You have to put this file in the main dir folder
 
 header("Content-type: text/html; charset=UTF-8");
-ini_set('mbstring.internal_encoding', 'UTF-8');
+
+/* Set internal character encoding to UTF-8 */
+mb_internal_encoding("UTF-8");
+
+//ini_set('mbstring.internal_encoding', 'UTF-8');
+
 ini_set('memory_limit', '128M');
 set_time_limit(0);
 error_reporting(0);
