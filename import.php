@@ -14,12 +14,13 @@
 
 //You have to put this file in the main dir folder
 
+//Start
 header("Content-type: text/html; charset=UTF-8");
 
 /* Set internal character encoding to UTF-8 */
 mb_internal_encoding("UTF-8");
-
 //ini_set('mbstring.internal_encoding', 'UTF-8');
+//iconv_set_encoding("internal_encoding", "UTF-8");
 
 ini_set('memory_limit', '128M');
 set_time_limit(0);
@@ -149,7 +150,7 @@ else
 			'cat_name' => (string) $name['0']
 		);
 		
-		$categories_xml_temp .= '<category type="string" id="' . $catnum . '" name="' . $name['0'] . '" slug="' . $slug['0'] . '" position="' . ($catnum + 1) . '"/>';
+		$categories_xml_temp .= '<category type="string" id="' . $catnum . '" name="' . utf8_encode($name['0']) . '" slug="' . seo($slug['0']) . '" position="' . ($catnum + 1) . '"/>';
 		$catnum++;
 	}
 	
@@ -166,7 +167,7 @@ else
 			'tag_name' => (string) $name['0']
 		);
 		
-		$tags_xml_temp .= '<tag id="' . $tagnum . '" name="' . strtolower(str_replace(' ' , '-', $name['0'])) . '" name_human="' . $name['0'] . '"/>';
+		$tags_xml_temp .= '<tag id="' . $tagnum . '" name="' . seo($name['0']) . '" name_human="' . utf8_encode($name['0']) . '"/>';
 		$tagnum++;
 	}
 	
@@ -207,17 +208,18 @@ else
 		
 		$type_type = (!empty($post_format) && $post_format == 'video') ? 'video' : 'simple';
 
-		$title = $item->title;
+		$title = utf8_encode($item->title);
 		
 		$seo = $item->xpath('wp:post_name');
-		$seo = $seo['0'];
+		$seo = seo($seo['0']);
 		
 		$content = $item->xpath('content:encoded');
 		$content = $content['0'];
 		$descr = html_excerpt( $content, 120 ) ;
 		$content = str_replace('<!--more-->', '<!-- pagebreak -->', $content);
 		$content = nl2p($content);
-		$content = htmlspecialchars($content); //htmlentities($content, ENT_IGNORE, "UTF-8");
+		$content = htmlspecialchars($content);		//$content = htmlentities($content, ENT_IGNORE, "UTF-8");
+		$content = utf8_encode ($content);
 		
 		$net = explode(" ", $date);
 		$dt = $net['0'];
@@ -489,15 +491,6 @@ function writefile($folder, $data)
 	fclose($fp);
 }
 
-function seo($text) 
-{
-    $url = preg_replace('/[^a-zA-Z0-9 *]/', '', $text);
-    $url = str_replace(array('/', '*', ' ', '.', '--'), array('', '', '-', '-', '-'), $url);
-    $url = strtolower($url);
-	if (strlen($url > 40))
-		$url = substr($url, 0, 40);
-    return $url;
-}
 
 function nl2p($string, $line_breaks = true, $xml = true) 
 {
@@ -510,5 +503,32 @@ function nl2p($string, $line_breaks = true, $xml = true)
 	# finally, replace SOH chars with paragraphs
 	$text = preg_replace('/(.*?)\001/s', "<p>$1</p>\n", $text); 
 	return $text; 
+}
+
+function seo($slug)
+{
+	if (function_exists('transliterator_transliterate')) {
+		
+		// Using transliterator to get rid of accents and convert non-Latin to Latin
+		$slug = transliterator_transliterate("Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC; [:Punctuation:] Remove; Lower();", $slug);
+	
+	} elseif (function_exists('iconv')) {
+		
+		// Transliterate accented characters to Latin (ascify)
+		$slug = iconv('UTF-8', 'ASCII//TRANSLIT', $slug);
+	
+	} else {
+		
+		// Convert special Latin letters and other characters to HTML entities.
+		$slug = htmlentities($slug, ENT_NOQUOTES, "UTF-8");
+
+		// With those HTML entities, either convert them back to a normal letter, or remove them.
+		$slug = preg_replace(array("/&([a-z]{1,2})(acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron);/i", "/&[^;]{2,6};/"), array("$1", " "), $slug);
+	}
+
+		// Now replace non-alphanumeric characters with a hyphen, and remove multiple hyphens.
+		$slug = strtolower(trim(preg_replace(array("/[^0-9a-z]/i", "/-+/"), "-", $slug), "-"));
+
+		return substr($slug, 0, 40);
 }
 ?>
