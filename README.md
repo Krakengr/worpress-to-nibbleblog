@@ -7,4 +7,4 @@ I like it and i decided to write a converter, so let's see how you can tranfer a
 from Wordpress to NibbleBlog.
 
 View more info here:
-http://homebrewgr.info/en/post/wordpress-nibbleblog-converter/
+http://g3ar.xyz/post/wordpress-to-nibbleblog-converter/
